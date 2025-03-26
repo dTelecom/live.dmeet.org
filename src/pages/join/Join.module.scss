@@ -1,0 +1,30 @@
+.container {
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+
+	& > div {
+		margin: auto;
+	}
+}
+
+.copyButton {
+	background-color: #59E970 !important;
+	color: #252728 !important;
+	font-size: 0 !important;
+	border-radius: 5px;
+	padding: 8px !important;
+	gap: 0;
+	height: 32px;
+	margin-left: 8px;
+
+	& > svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	&.copied {
+		opacity: 0.8;
+	}
+}
