@@ -1,18 +1,30 @@
+"use client";
 import { Button } from "@/components/ui";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { NavBar } from "@/components/ui/NavBar/NavBar";
 import { Footer } from "@/components/ui/Footer/Footer";
-import styles from "./Index.module.scss";
+import styles from "./page.module.scss";
 import { Input } from "@/components/ui/Input/Input";
 import type { FormEvent } from "react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { KeyIcon } from "@/assets";
-import axios from "axios";
+import { Leaderboard } from "@/components/ui/Leaderboard/Leaderboard";
+import { LoginButton } from "@/lib/dtel-auth/components";
+import { IsAuthorizedWrapper } from "@/lib/dtel-auth/components/IsAuthorizedWrapper";
+import { getCookie, setCookie } from "@/app/actions";
 
-export default function IndexPage() {
+export const dynamic = "force-dynamic";
+
+export default function Home() {
   const [roomName, setRoomName] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { push } = useRouter();
+
+  useEffect(() => {
+    getCookie("roomName").then((cookie) => {
+      setRoomName(cookie || "");
+    });
+  }, []);
 
   const onCreate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,18 +33,9 @@ export default function IndexPage() {
 
     try {
       setIsLoading(true);
-      const { data } = await axios.post<{ identity: string; slug: string }>(
-        "/api/createRoom",
-        { roomName }
-      );
 
-      await push({
-        pathname: `/join/${data.slug}`,
-        query: {
-          roomName,
-          identity: data.identity,
-        }
-      });
+      setCookie("roomName", roomName, window.location.origin);
+      push(`/createRoom?roomName=${encodeURIComponent(roomName)}`);
     } catch (e) {
       console.error(e);
     }
@@ -42,7 +45,17 @@ export default function IndexPage() {
 
   return (
     <>
-      <NavBar/>
+      <NavBar>
+        <IsAuthorizedWrapper>
+          <Leaderboard
+            buttonStyle={{
+              marginRight: "8px"
+            }}
+          />
+        </IsAuthorizedWrapper>
+
+        <LoginButton />
+      </NavBar>
 
       <div className={styles.container}>
         <h1 className={styles.title}>

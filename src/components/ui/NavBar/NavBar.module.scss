@@ -21,7 +21,7 @@
 
 		.link {
 			svg {
-				transform: translateX(-10%) scale(0.8);
+				transform: scale(0.8);
 			}
 		}
 	}
@@ -30,9 +30,9 @@
 		width: 100%;
 		display: flex;
 
-		@media (max-width: 600px) {
-			& > svg {
-				transform: translateX(-10%) scale(0.8);
+		& > svg {
+			@media (max-width: 600px) {
+				transform: scale(0.8);
 			}
 		}
 	}
@@ -45,7 +45,6 @@
 
 		@media (max-width: 600px) {
 			font-size: 18px;
-			color: #777575;
 		}
 	}
 
