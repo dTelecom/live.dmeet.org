@@ -217,6 +217,8 @@ const WrappedLiveKitRoom = ({
         roomName={roomName}
         slug={slug}
         iconFull={!isMobile}
+        isAdmin={isAdmin}
+        token={token}
       />
 
       <Livestream

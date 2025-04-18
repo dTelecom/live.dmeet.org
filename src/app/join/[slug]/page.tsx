@@ -28,8 +28,8 @@ const JoinRoomPage = () => {
     Partial<LocalUserChoices>
   >({
     username: "",
-    videoEnabled: true,
-    audioEnabled: process.env.NODE_ENV !== "development"
+    videoEnabled: false,
+    audioEnabled: false
   });
 
   const [roomName] = useState<string>(name);
