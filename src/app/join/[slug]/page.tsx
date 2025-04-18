@@ -1,107 +1,79 @@
+'use client';
+
 import type { LocalUserChoices } from "@dtelecom/components-react";
 import { PreJoin } from "@dtelecom/components-react";
-import React, { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { NavBar } from "@/components/ui/NavBar/NavBar";
-import type { GetServerSideProps } from "next";
 import { Footer } from "@/components/ui/Footer/Footer";
 import axios from "axios";
-import type { IJoinResponse } from "@/pages/api/join";
-import type { IGetRoomResponse } from "@/pages/api/getRoom";
 import { isMobileBrowser } from "@dtelecom/components-core";
-import type { IGetWsUrl } from "@/pages/api/getWsUrl";
 import styles from "./Join.module.scss";
 import { languageOptions } from "@/lib/languageOptions";
-import { usePathname, useSearchParams } from "next/navigation";
+import { IGetRoomResponse } from "@/app/api/getRoom/route";
+import { ParticipantsBadge } from "@/components/ui/ParticipantsBadge/ParticipantsBadge";
+import { getCookie, setCookie } from '@/app/actions';
+import { Button } from "@/components/ui";
 import { clsx } from "clsx";
 import { ChainIcon, TickIcon } from "@/assets";
-import { Button } from "@/components/ui";
-import { ParticipantsBadge } from "@/components/ui/ParticipantsBadge/ParticipantsBadge";
 
-interface Props {
-  slug: string;
-  roomName: string;
-}
-
-const JoinRoomPage = ({ slug, roomName: name }: Props) => {
+const JoinRoomPage = () => {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
+  const { slug } = useParams();
+  const params = useSearchParams();
+  const name = params.get("roomName") || "";
   const isMobile = React.useMemo(() => isMobileBrowser(), []);
 
-  const [identity] = useState<string>(searchParams.get("identity") || "");
   const [preJoinChoices, setPreJoinChoices] = useState<
     Partial<LocalUserChoices>
   >({
     username: "",
-    videoEnabled: !!identity,
-    audioEnabled: process.env.NODE_ENV !== "development" && !!identity
+    videoEnabled: false,
+    audioEnabled: false
   });
-  const [roomName, setRoomName] = useState<string>(name);
+
+  const [roomName] = useState<string>(name);
   const [wsUrl, setWsUrl] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
   const [participantsCount, setParticipantsCount] = useState<number>();
 
-  const handleRemoveQuery = useCallback((paramToRemove) => {
-    const currentParams = new URLSearchParams(searchParams.toString());
-    currentParams.delete(paramToRemove);
-    router.replace(`${pathname}?${currentParams.toString()}`);
-  }, [router, pathname, searchParams]);
-
   useEffect(() => {
-    async function fetchRoom(wsUrl) {
-      const { data } = await axios.post<IGetRoomResponse>(
-        `/api/getRoom?slug=${slug}`, {
-          identity: identity || null,
-          wsUrl
-        }
-      );
-      if (data.roomDeleted) {
-        void router.push("/");
-      }
+    getCookie('username').then((cookie) => {
+      setPreJoinChoices((prev) => ({
+        ...prev,
+        username: cookie || ''
+      }));
+    });
+
+    async function fetchRoom() {
+      const { data } = await axios.post<IGetRoomResponse>(`/api/getRoom?slug=${slug}`);
       setParticipantsCount(data.participantsCount || 0);
-      setRoomName(data.roomName || name);
     }
 
     async function fetchWsUrl() {
-      let wsUrl = null;
       try {
-        const { data } = await axios.get<IGetWsUrl>(`/api/getWsUrl`);
+        const { data } = await axios.get(`/api/getWsUrl`);
         setWsUrl(data.wsUrl);
-        wsUrl = data.wsUrl;
       } finally {
         setIsLoading(false);
       }
-      return wsUrl;
     }
 
-    void fetchWsUrl().then((wsUrl) => {
-      void fetchRoom(wsUrl);
-      handleRemoveQuery("identity");
-    });
-  }, []);
+    void fetchRoom();
+    void fetchWsUrl();
+  }, [router, slug]);
 
   const onJoin = async (values: Partial<LocalUserChoices>) => {
     console.log("Joining with: ", values);
     setIsLoading(true);
-    const { data } = await axios.post<IJoinResponse>(`/api/join`, {
+    const { data } = await axios.post(`/api/join`, {
       wsUrl,
       slug,
       name: values?.username || "",
-      identity: identity || null
     });
+    await setCookie('username', values?.username || '', window.location.origin);
 
-    await router.push({
-      pathname: `/room/${data.slug}`,
-      query: {
-        token: data.token,
-        wsUrl: data.url,
-        preJoinChoices: JSON.stringify(values),
-        roomName: data.roomName || name,
-        isAdmin: data.isAdmin
-      }
-    });
+    await router.push(`/room/${data.slug}?token=${data.token}&wsUrl=${data.url}&preJoinChoices=${JSON.stringify(values)}&roomName=${data.roomName || name}`);
 
     setIsLoading(false);
   };
@@ -145,7 +117,7 @@ const JoinRoomPage = ({ slug, roomName: name }: Props) => {
           >
             <span>{copied ? <TickIcon /> : <ChainIcon />}</span>
           </Button>
-        ) : <div/>}
+        ) : <div />}
       </NavBar>
 
       <div className={styles.container}>
@@ -165,26 +137,14 @@ const JoinRoomPage = ({ slug, roomName: name }: Props) => {
           userLabel={"Enter your name"}
           isLoading={isLoading}
           languageOptions={languageOptions}
-          disableVideo={!identity}
-          formTitle={!identity ? "Join the stream:" : ""}
+          disableVideo={true}
+          formTitle={"Join the stream:"}
         />
       </div>
 
       <Footer />
     </>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async ({
-  params,
-  query
-}) => {
-  return Promise.resolve({
-    props: {
-      slug: params?.slug as string,
-      roomName: (query?.roomName as string) || ""
-    }
-  });
 };
 
 export default JoinRoomPage;

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavBar } from "@/components/ui/NavBar/NavBar";
 import { ParticipantsBadge } from "@/components/ui/ParticipantsBadge/ParticipantsBadge";
 import { Button } from "@/components/ui";
@@ -7,15 +7,17 @@ import { ChainIcon, TickIcon } from "@/assets";
 import styles from "./RoomNavBar.module.scss";
 import { useTracks } from "@dtelecom/components-react";
 import { RoomEvent, Track } from "@dtelecom/livekit-client";
-import { isMobileBrowser } from "@dtelecom/components-core";
+import axios from "axios";
 
 interface RoomNavBarProps {
   slug: string;
   roomName: string;
   iconFull?: boolean;
+  isAdmin?: boolean;
+  token?: string;
 }
 
-export const RoomNavBar = ({ slug, roomName, iconFull }: RoomNavBarProps) => {
+export const RoomNavBar = ({ slug, roomName, iconFull, isAdmin, token }: RoomNavBarProps) => {
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -36,19 +38,30 @@ export const RoomNavBar = ({ slug, roomName, iconFull }: RoomNavBarProps) => {
   };
 
   const count = useMemo(() => {
-    const identities = [...new Set(tracks.map((t) => t.participant.identity))];
+    const identities = Array.from(new Set(tracks.map((t) => t.participant.identity)));
     return identities.length;
   }, [tracks]);
 
-  const isMobile = React.useMemo(() => isMobileBrowser(), []);
+  useEffect(() => {
+    if (isAdmin) {
+      void axios.post('/api/updateParticipantsCount', {
+        slug,
+        participantsCount: count,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+    }
+  }, [count, isAdmin, slug, token]);
 
   return (
-    <NavBar title={roomName} small iconFull={!isMobile}>
+    <NavBar title={roomName} small iconFull={iconFull}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "12px",
+          gap: "20px",
         }}
       >
         <ParticipantsBadge count={count} />
