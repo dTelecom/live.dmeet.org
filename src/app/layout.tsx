@@ -5,8 +5,6 @@ import "@dtelecom/components-styles";
 import "@dtelecom/components-styles/prefabs";
 import "@/styles/globals.css";
 import React from 'react';
-
-// create metadata for nextjs  15
 import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
