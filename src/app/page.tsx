@@ -12,10 +12,12 @@ import { Leaderboard } from "@/components/ui/Leaderboard/Leaderboard";
 import { LoginButton } from "@/lib/dtel-auth/components";
 import { IsAuthorizedWrapper } from "@/lib/dtel-auth/components/IsAuthorizedWrapper";
 import { getCookie, setCookie } from "@/app/actions";
+import { isMobileBrowser } from '@dtelecom/components-core';
 
 export const dynamic = "force-dynamic";
 
 export default function Home() {
+  const isMobile = React.useMemo(() => isMobileBrowser(), []);
   const [roomName, setRoomName] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { push } = useRouter();
@@ -45,7 +47,7 @@ export default function Home() {
 
   return (
     <>
-      <NavBar>
+      <NavBar small iconFull={!isMobile}>
         <IsAuthorizedWrapper>
           <Leaderboard
             buttonStyle={{

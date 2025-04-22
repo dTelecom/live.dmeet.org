@@ -12,11 +12,12 @@ import type { IGetWsUrl } from "@/app/api/getWsUrl/route";
 import styles from "./CreateRoom.module.scss";
 import { languageOptions } from "@/lib/languageOptions";
 import { getCookie, setCookie } from '@/app/actions';
+import { isMobileBrowser } from '@dtelecom/components-core';
 
 const CreateRoomPage = () => {
   const router = useRouter();
   const params = useSearchParams()
-
+  const isMobile = React.useMemo(() => isMobileBrowser(), []);
   const [roomName] = useState<string>(params.get("roomName") || "");
   const [preJoinChoices, setPreJoinChoices] = useState<
     Partial<LocalUserChoices>
@@ -77,7 +78,7 @@ const CreateRoomPage = () => {
       <NavBar
         title={roomName}
         small
-        iconFull
+        iconFull={!isMobile}
       >
         <ParticipantsBadge count={0} />
 

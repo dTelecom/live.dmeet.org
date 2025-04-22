@@ -10,14 +10,17 @@ import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
 
+const title = "dMeet | Livestreaming App"
+const description = "Free, open-source web app for livestreaming. Go live or tune in effortlessly with real-time AI voice translation. Use the app, invite friends, and earn points. Powered by dTelecom."
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://live.dmeet.org"),
-  title: 'dMeet | Livestream',
-  description: 'A free, open-source web app for livestreaming — join streams or start your own effortlessly.',
+  title: title,
+  description: description,
   openGraph: {
-    title: 'dMeet | Livestream',
-    description: 'A free, open-source web app for livestreaming — join streams or start your own effortlessly.',
-    siteName: 'dMeet | Livestream',
+    title: title,
+    description: description,
+    siteName: title,
     images: ["/og.png"],
   },
   viewport: {
