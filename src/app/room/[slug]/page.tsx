@@ -125,7 +125,7 @@ const RoomWrapper: NextPage = () => {
           video={preJoinChoices?.videoEnabled}
           audio={preJoinChoices?.audioEnabled}
           onDisconnected={onDisconnected}
-          activityModalEnabled={true}
+          activityModalEnabled={isAdmin}
         >
           <WrappedLiveKitRoom
             roomName={roomName}
