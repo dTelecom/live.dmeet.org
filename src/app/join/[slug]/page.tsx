@@ -64,18 +64,21 @@ const JoinRoomPage = () => {
   }, [router, slug]);
 
   const onJoin = async (values: Partial<LocalUserChoices>) => {
-    console.log("Joining with: ", values);
-    setIsLoading(true);
-    const { data } = await axios.post(`/api/join`, {
-      wsUrl,
-      slug,
-      name: values?.username || "",
-    });
-    await setCookie('username', values?.username || '', window.location.origin);
+    try {
+      console.log("Joining with: ", values);
+      setIsLoading(true);
+      const { data } = await axios.post(`/api/join`, {
+        wsUrl,
+        slug,
+        name: values?.username || "",
+      });
+      await setCookie('username', values?.username || '', window.location.origin);
 
-    await router.push(`/room/${data.slug}?token=${data.token}&wsUrl=${data.url}&preJoinChoices=${JSON.stringify(values)}&roomName=${data.roomName || name}`);
-
-    setIsLoading(false);
+      await router.push(`/room/${data.slug}?token=${data.token}&wsUrl=${data.url}&preJoinChoices=${JSON.stringify(values)}&roomName=${data.roomName || name}`);
+    } catch (e) {
+      console.error(e);
+      setIsLoading(false);
+    }
   };
 
   const [copied, setCopied] = useState(false);
