@@ -13,6 +13,7 @@ import styles from "./CreateRoom.module.scss";
 import { languageOptions } from "@/lib/languageOptions";
 import { getCookie, setCookie } from '@/app/actions';
 import { isMobileBrowser } from '@dtelecom/components-core';
+import { defaultPreJoinChoices } from '@/lib/constants';
 
 const CreateRoomPage = () => {
   const router = useRouter();
@@ -21,22 +22,19 @@ const CreateRoomPage = () => {
   const [roomName] = useState<string>(params.get("roomName") || "");
   const [preJoinChoices, setPreJoinChoices] = useState<
     Partial<LocalUserChoices>
-  >({
-    username: "",
-    videoEnabled: true,
-    audioEnabled: process.env.NODE_ENV !== "development"
-  });
+  >();
 
   const [wsUrl, setWsUrl] = useState<string>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    getCookie('username').then((cookie) => {
-      setPreJoinChoices((prev) => ({
-        ...prev,
-        username: cookie || ''
+    getCookie("username").then((cookie) => {
+      setPreJoinChoices(() => ({
+        ...defaultPreJoinChoices,
+        username: cookie || ""
       }));
-      setIsLoading(false);
+    }).catch(() => {
+      setPreJoinChoices(() => (defaultPreJoinChoices));
     });
 
     async function fetchWsUrl() {
@@ -74,7 +72,7 @@ const CreateRoomPage = () => {
     }
   };
 
-  if (roomName === undefined || isLoading) {
+  if (roomName === undefined || !preJoinChoices) {
     return null;
   }
 
