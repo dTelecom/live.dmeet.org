@@ -35,7 +35,7 @@ const description = {
       },
       {
         badge: "Viewer",
-        text: `${BASE_REWARDS_PER_MINUTE / 2} points/minute`,
+        text: `${BASE_REWARDS_PER_MINUTE} points/minute`,
         text2: "for watching\na livestream"
       },
       {
