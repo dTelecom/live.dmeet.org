@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import type { LocalUserChoices } from "@dtelecom/components-react";
 import { PreJoin } from "@dtelecom/components-react";
@@ -12,10 +12,10 @@ import styles from "./Join.module.scss";
 import { languageOptions } from "@/lib/languageOptions";
 import { IGetRoomResponse } from "@/app/api/getRoom/route";
 import { ParticipantsBadge } from "@/components/ui/ParticipantsBadge/ParticipantsBadge";
-import { getCookie, setCookie } from '@/app/actions';
-import { Button } from "@/components/ui";
-import { clsx } from "clsx";
-import { ChainIcon, TickIcon } from "@/assets";
+import { getCookie, setCookie } from "@/app/actions";
+import { IsAuthorizedWrapper } from "@/lib/dtel-auth/components/IsAuthorizedWrapper";
+import { Leaderboard } from "@/lib/dtel-common/Leaderboard/Leaderboard";
+import { LoginButton } from "@/lib/dtel-auth/components";
 
 const JoinRoomPage = () => {
   const router = useRouter();
@@ -67,31 +67,22 @@ const JoinRoomPage = () => {
   }, [router, slug]);
 
   const onJoin = async (values: Partial<LocalUserChoices>) => {
+    console.log("Joining with: ", values);
+    setIsLoading(true);
     try {
-      console.log("Joining with: ", values);
-      setIsLoading(true);
+
       const { data } = await axios.post(`/api/join`, {
         wsUrl,
         slug,
         name: values?.username || "",
       });
-      await setCookie('username', values?.username || '', window.location.origin);
+      await setCookie("username", values?.username || "", window.location.origin);
 
       await router.push(`/room/${data.slug}?token=${data.token}&wsUrl=${data.url}&preJoinChoices=${JSON.stringify(values)}&roomName=${data.roomName || name}`);
     } catch (e) {
       console.error(e);
       setIsLoading(false);
     }
-  };
-
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    const url = encodeURI(
-      `${window.location.origin}/join/${slug}?roomName=${roomName}`
-    );
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   if (roomName === undefined || !preJoinChoices) {
@@ -104,26 +95,28 @@ const JoinRoomPage = () => {
         title={roomName || name}
         small
         iconFull={!isMobile}
+        divider
+        smallTitle={isMobile}
       >
-        {participantsCount !== undefined && (
+        {participantsCount !== undefined ? (
           <ParticipantsBadge count={participantsCount} />
-        )}
-        {isMobile ? (
-          <Button
-            onClick={() => {
-              void copy();
-            }}
-            className={clsx(
-              "lk-button",
-              styles.copyButton,
-              copied && styles.copied
-            )}
-            size={"sm"}
-            variant={"default"}
-          >
-            <span>{copied ? <TickIcon /> : <ChainIcon />}</span>
-          </Button>
         ) : <div />}
+
+        <div
+          style={{
+            display: "flex"
+          }}
+        >
+          <IsAuthorizedWrapper>
+            <Leaderboard
+              buttonStyle={{
+                marginRight: "8px"
+              }}
+            />
+          </IsAuthorizedWrapper>
+
+          <LoginButton />
+        </div>
       </NavBar>
 
       <div className={styles.container}>
