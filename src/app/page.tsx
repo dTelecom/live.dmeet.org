@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input/Input";
 import type { FormEvent } from "react";
 import React, { useEffect, useState } from "react";
 import { KeyIcon } from "@/assets";
-import { Leaderboard } from "@/components/ui/Leaderboard/Leaderboard";
+import { Leaderboard } from "@/lib/dtel-common/Leaderboard/Leaderboard";
 import { LoginButton } from "@/lib/dtel-auth/components";
 import { IsAuthorizedWrapper } from "@/lib/dtel-auth/components/IsAuthorizedWrapper";
 import { getCookie, setCookie } from "@/app/actions";
@@ -56,7 +56,7 @@ export default function Home() {
           />
         </IsAuthorizedWrapper>
 
-        <LoginButton />
+        <LoginButton fullTitle />
       </NavBar>
 
       <div className={styles.container}>
@@ -88,7 +88,7 @@ export default function Home() {
             variant={"default"}
             size={"lg"}
             className={styles.button}
-            disabled={!roomName || isLoading}
+            disabled={!roomName || isLoading || roomName.length < 3}
           >
             {isLoading ? <Loader /> : "Create a Room"}
           </Button>

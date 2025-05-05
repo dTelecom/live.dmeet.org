@@ -8,6 +8,10 @@ import styles from "./RoomNavBar.module.scss";
 import { useTracks } from "@dtelecom/components-react";
 import { RoomEvent, Track } from "@dtelecom/livekit-client";
 import axios from "axios";
+import { usePrivy } from "@privy-io/react-auth";
+import { Leaderboard } from "@/lib/dtel-common/Leaderboard/Leaderboard";
+import { isMobileBrowser } from "@dtelecom/components-core";
+import { IsAuthorizedWrapper } from "@/lib/dtel-auth/components/IsAuthorizedWrapper";
 
 interface RoomNavBarProps {
   slug: string;
@@ -18,6 +22,8 @@ interface RoomNavBarProps {
 }
 
 export const RoomNavBar = ({ slug, roomName, iconFull, isAdmin, token }: RoomNavBarProps) => {
+  const { authenticated } = usePrivy();
+  const isMobile = React.useMemo(() => isMobileBrowser(), []);
   const tracks = useTracks(
     [
       { source: Track.Source.Camera, withPlaceholder: true },
@@ -56,12 +62,18 @@ export const RoomNavBar = ({ slug, roomName, iconFull, isAdmin, token }: RoomNav
   }, [count, isAdmin, slug, token]);
 
   return (
-    <NavBar title={roomName} small iconFull={iconFull}>
+    <NavBar
+      title={roomName}
+      small
+      iconFull={iconFull}
+      divider={authenticated}
+      smallTitle={isMobile}
+    >
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "20px",
+          gap: "8px"
         }}
       >
         <ParticipantsBadge count={count} />
@@ -79,9 +91,16 @@ export const RoomNavBar = ({ slug, roomName, iconFull, isAdmin, token }: RoomNav
           variant={"default"}
         >
           <span>{copied ? <TickIcon /> : <ChainIcon />}</span>
-          <span>{copied ? "Copied" : "Copy invite link"}</span>
+          <span>{copied ? "Copied" : "Copy"}</span>
         </Button>
       </div>
+
+      <IsAuthorizedWrapper>
+        <Leaderboard
+          showPoints
+          isAdmin={isAdmin}
+        />
+      </IsAuthorizedWrapper>
     </NavBar>
   );
 };
