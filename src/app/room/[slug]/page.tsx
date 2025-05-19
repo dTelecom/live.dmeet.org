@@ -80,7 +80,7 @@ const useRoomOptions = (preJoinChoices: LocalUserChoices | null, hq: boolean): R
         deviceId: preJoinChoices?.audioDeviceId ?? undefined,
       },
       adaptiveStream: {
-        pauseWhenNotVisible: false,
+        pauseWhenNotVisible: true,
         pauseVideoInBackground: true,
       },
       dynacast: false,
