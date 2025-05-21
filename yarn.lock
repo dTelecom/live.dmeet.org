@@ -2292,6 +2292,11 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.11.0.tgz#75dce8e972f90bba488e2b0cc677fb233aa357ab"
   integrity sha512-zxnHvoMQVqewTJr/W4pKjF0bMGiKJv1WX7bSrkl46Hg0QjESbzBROWK0Wg4RphzSOS5Jiy7eFimmM3UgMrMZbQ==
 
+"@rybbit/js@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@rybbit/js/-/js-0.1.0.tgz#3eeb7bffe9f4d440bc6e2c14218ef9e89c5d84bd"
+  integrity sha512-loUH34g0ntDgwANNLms3ce4k/GWPDqvOgfxy+SFcdYH8PPcOjDHn6zl3gRdnFM7eS4Ae77p8wfUSsfh7FYFvlg==
+
 "@scure/base@~1.1.6":
   version "1.1.9"
   resolved "https://registry.yarnpkg.com/@scure/base/-/base-1.1.9.tgz#e5e142fbbfe251091f9c5f1dd4c834ac04c3dbd1"
